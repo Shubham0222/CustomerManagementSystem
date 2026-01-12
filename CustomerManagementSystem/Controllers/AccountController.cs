@@ -18,9 +18,6 @@ namespace CustomerManagementSystem.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-
-
-
             return View();
         }
 
@@ -60,7 +57,8 @@ namespace CustomerManagementSystem.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync();
-            return RedirectToAction("Login");
+            return RedirectToAction("Login", "Account");
         }
+
     }
 }

@@ -13,13 +13,18 @@ public class CustomersController : Controller
         _repo = repo;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1, string search = "")
     {
-        var data = await _repo.GetCustomersAsync(1, 10, "");
-        return View(data);
+        int pageSize = 10;
+
+        var model = await _repo.GetCustomersAsync(page, pageSize, search);
+
+        model.Search = search;
+
+        return View(model);
     }
 
-    // BOTH USER + ADMIN CAN CREATE
+
     [HttpGet]
     public IActionResult Create()
     {
@@ -32,7 +37,16 @@ public class CustomersController : Controller
         if (!ModelState.IsValid)
             return View(customer);
 
-        await _repo.AddCustomerAsync(customer);
-        return RedirectToAction("Index");
+        var (isSuccess, reason) = await _repo.AddCustomerAsync(customer);
+
+        if (!isSuccess)
+        {
+            TempData["SuccessMessage"] = reason;
+            return View(customer);
+        }
+
+        TempData["SuccessMessage"] = reason;
+        return RedirectToAction(nameof(Index));
+
     }
 }

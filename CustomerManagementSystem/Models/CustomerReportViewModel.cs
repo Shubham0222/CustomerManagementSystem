@@ -11,4 +11,20 @@ namespace CustomerManagementSystem.Models
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
     }
+
+    public class CustomerReportDto
+    {
+        public List<CustomerReportVM> Customers { get; set; } = new List<CustomerReportVM>();
+
+        public int CurrentPage { get; set; }
+
+        public int PageSize { get; set; }
+
+        public int TotalRecords { get; set; }
+        public string Search { get; set; } = string.Empty;
+
+        public int TotalPages =>
+            (int)Math.Ceiling((double)TotalRecords / PageSize);
+    }
+
 }

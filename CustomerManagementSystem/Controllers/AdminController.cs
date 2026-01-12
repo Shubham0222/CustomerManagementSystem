@@ -14,17 +14,18 @@ namespace CustomerManagementSystem.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Update(Customer customer)
+        public async Task<IActionResult> Update([FromBody] Customer customer)
         {
             await _repo.UpdateCustomerAsync(customer);
-            return Ok();
+            return Json(new { success = true });
         }
+
 
 
         public async Task<IActionResult> Delete(int id)
         {
             await _repo.DeleteCustomerAsync(id);
-            return RedirectToAction("Index", "Customers");
+            return Json(new { success = true });
         }
     }
 }

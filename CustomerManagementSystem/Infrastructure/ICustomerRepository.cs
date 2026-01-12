@@ -4,9 +4,9 @@ namespace CustomerManagementSystem.Infrastructure
 {
     public interface ICustomerRepository
     {
-        Task<IEnumerable<CustomerReportVM>> GetCustomersAsync(
+        Task<CustomerReportDto> GetCustomersAsync(
             int page, int pageSize, string search);
-        Task AddCustomerAsync(Customer customer);
+        Task<(bool IsSuccess, string Reason)> AddCustomerAsync(Customer customer);
         Task UpdateCustomerAsync(Customer customer);
         Task DeleteCustomerAsync(int customerId);
     }
