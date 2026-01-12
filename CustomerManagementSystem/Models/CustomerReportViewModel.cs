@@ -1,6 +1,6 @@
 namespace CustomerManagementSystem.Models
 {
-    public class CustomerReportViewModel
+    public class CustomerReportVM
     {
         public int CustomerID { get; set; }
         public string FirstName { get; set; } = string.Empty;

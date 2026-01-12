@@ -1,0 +1,92 @@
+﻿@model IEnumerable<CustomerReportVM>
+
+@{
+    ViewData["Title"] = "Customer List";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Customer List</h3>
+
+       
+        <a asp-action="Create" class="btn btn-success">
+            + Add Customer
+        </a>
+    </div>
+
+    <table class="table table-bordered table-hover shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Country</th>
+                <th>Created At</th>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <th style="width:160px">Actions</th>
+                }
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr data-id="@c.CustomerID">
+                    <td class="editable" data-field="FirstName">@c.FirstName</td>
+                    <td class="editable" data-field="LastName">@c.LastName</td>
+                    <td>@c.Email</td>
+                    <td class="editable" data-field="Phone">@c.Phone</td>
+                    <td>@c.CountryName</td>
+                    <td>@c.CreatedAt.ToString("dd-MMM-yyyy")</td>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <td>
+                            <button class="btn btn-sm btn-primary btn-save">Save</button>
+                            <a asp-controller="Admin"
+                               asp-action="Delete"
+                               asp-route-id="@c.CustomerID"
+                               onclick="return confirm('Are you sure?')"
+                               class="btn btn-sm btn-danger">
+                                Delete
+                            </a>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $('.btn-save').click(function () {
+
+        var row = $(this).closest('tr');
+
+        var customer = {
+            CustomerID: row.data('id'),
+            FirstName: row.find('[data-field="FirstName"]').text(),
+            LastName: row.find('[data-field="LastName"]').text(),
+            Phone: row.find('[data-field="Phone"]').text()
+        };
+
+        $.ajax({
+            url: '/Admin/Update',
+            type: 'POST',
+            data: customer,
+            success: function () {
+                alert('Customer updated successfully');
+            },
+            error: function () {
+                alert('Update failed');
+            }
+        });
+    });
+</script>
+

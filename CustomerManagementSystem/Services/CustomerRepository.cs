@@ -1,6 +1,7 @@
 ﻿using CustomerManagementSystem.DbModels;
 using CustomerManagementSystem.Infrastructure;
 using CustomerManagementSystem.Models;
+using Dapper;
 using System.Data;
 
 namespace CustomerManagementSystem.Services
@@ -22,7 +23,7 @@ namespace CustomerManagementSystem.Services
                c.Phone, co.CountryName, c.IsActive
         FROM Customers c
         INNER JOIN Countries co ON c.CountryID = co.CountryID
-        WHERE (@Search IS NULL OR c.FirstName LIKE '%' + @Search + '%')
+        WHERE (@Search IS NULL OR c.FirstName LIKE '%' + @Search + '%') AND IsActive = 1
         ORDER BY c.CreatedAt
         OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
 
@@ -35,14 +36,34 @@ namespace CustomerManagementSystem.Services
             });
         }
 
-        public async Task AddCustomerAsync(Customer customer)
+        public async Task AddCustomerAsync1(Customer customer)
         {
             using var connection = _context.CreateConnection();
             await connection.ExecuteAsync(
-                "sp_AddCustomer",
+                "sp_InsertCustomer",
                 customer,
                 commandType: CommandType.StoredProcedure);
         }
+
+        public async Task AddCustomerAsync(Customer customer)
+        {
+            using var connection = _context.CreateConnection();
+
+            var parameters = new
+            {
+                customer.FirstName,
+                customer.LastName,
+                customer.Email,
+                customer.Phone,
+                customer.CountryID
+            };
+
+            await connection.ExecuteAsync(
+                "sp_InsertCustomer",
+                parameters,
+                commandType: CommandType.StoredProcedure);
+        }
+
 
         public async Task UpdateCustomerAsync(Customer customer)
         {
@@ -53,7 +74,7 @@ namespace CustomerManagementSystem.Services
                 commandType: CommandType.StoredProcedure);
         }
 
-        public async Task SoftDeleteCustomerAsync(int customerId)
+        public async Task DeleteCustomerAsync(int customerId)
         {
             using var connection = _context.CreateConnection();
             await connection.ExecuteAsync(

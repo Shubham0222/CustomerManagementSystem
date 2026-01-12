@@ -8,7 +8,7 @@ namespace CustomerManagementSystem.Infrastructure
             int page, int pageSize, string search);
         Task AddCustomerAsync(Customer customer);
         Task UpdateCustomerAsync(Customer customer);
-        Task SoftDeleteCustomerAsync(int customerId);
+        Task DeleteCustomerAsync(int customerId);
     }
 
 }
