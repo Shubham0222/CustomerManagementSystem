@@ -4,25 +4,22 @@
     ViewBag.title = "Customer List";
 }
 
-@section page_specific_style{
+@section page_specific_style {
 
 
     <style>
         .country-select:disabled {
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-
-        background: transparent;
-        border: none;
-        box-shadow: none;
-
-        padding-left: 0;
-        color: #000;
-        font-weight: 500;
-
-        pointer-events: none;
-    }
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding-left: 0;
+            color: #000;
+            font-weight: 500;
+            pointer-events: none;
+        }
     </style>
 }
 
@@ -58,8 +55,7 @@
     <script src="~/js/customerFilter.js"></script>
     <script>
 
-                   $(document).on('click', '.btn-edit', function () {
-
+            $(document).on('click', '.btn-edit', function () {
             var btn = $(this);
             var row = btn.closest('tr');
             var isEditMode = btn.text().trim() === 'Update';
@@ -119,28 +115,37 @@
 
 
 
-        $('.btn-delete').click(function () {
 
-            if (!confirm('Are you sure?')) return;
+    </script>
+    <script>
+                    $(document).ready(function () {
+            console.log("hello");
 
-            var row = $(this).closest('tr');
-            var id = row.data('id');
+            $(document).on('click', '.btn-delete', function () {
 
-            $.ajax({
-                url: '/Admin/Delete',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(id),
-                success: function () {
-                    row.fadeOut(300, function () {
-                        $(this).remove();
-                    });
-                },
-                error: function () {
-                    alert('Delete failed');
-                }
+                if (!confirm('Are you sure?')) return;
+
+                var row = $(this).closest('tr');
+                var id = row.data('id');
+                console.log(id);
+
+                $.ajax({
+                    url: '/Admin/Delete',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(id),
+                    success: function () {
+                        row.fadeOut(300, function () {
+                            $(this).remove();
+                        });
+                    },
+                    error: function () {
+                        alert('Delete failed');
+                    }
+                });
             });
         });
+
     </script>
 }
 

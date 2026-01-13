@@ -22,7 +22,7 @@ namespace CustomerManagementSystem.Controllers
 
 
 
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromBody] int id)
         {
             await _repo.DeleteCustomerAsync(id);
             return Json(new { success = true });
