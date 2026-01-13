@@ -29,24 +29,41 @@
                 text-decoration: underline;
             }
 
+        .listTopFlex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .listAct {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
     </style>
 
 
 }
 
 <div class="container-fluid">
-    <div class="listTopFlex">
-        <h5>
-            Customer List
-        </h5>
-        <div class="listAct">
+    <div class="listTopFlex mb-3 d-flex justify-content-between align-items-center ">
+        <h5>Customer List</h5>
+
+        <div class="d-flex align-items-center gap-2">
             <div class="seah">
-                <input class="form-control form-control-sm" type="search" id="searchit" placeholder="Search...">
-                <label for="searchit"><i class="bx bx-search"></i></label>
+                <input class="form-control form-control-sm"
+                       type="search"
+                       id="searchit"
+                       placeholder="Search...">
             </div>
 
+            <button class="btn btn-sm btn-success" id="btnCreateCustomer">
+                + Create Customer
+            </button>
         </div>
     </div>
+
     <div>
         <div id="divindex">
         </div>
@@ -66,61 +83,86 @@
     <script src="~/js/customerFilter.js"></script>
     <script>
 
-            $(document).on('click', '.btn-edit', function () {
-            var btn = $(this);
-            var row = btn.closest('tr');
-            var isEditMode = btn.text().trim() === 'Update';
+                $(document).on('click', '.btn-edit', function () {
+                var btn = $(this);
+                var row = btn.closest('tr');
+                var isEditMode = btn.text().trim() === 'Update';
 
-            var countrySelect = row.find('.country-select');
+                var countrySelect = row.find('.country-select');
 
-            if (isEditMode) {
-                // Enable text fields
-                row.find('[data-field]')
-                    .attr('contenteditable', true)
-                    .addClass('editable-active');
+                if (isEditMode) {
+               
+                    row.find('[data-field]')
+                        .attr('contenteditable', true)
+                        .addClass('editable-active');
 
-                // ✅ Enable country dropdown
-                countrySelect.prop('disabled', false);
+                   
+                    countrySelect.prop('disabled', false);
 
-                btn.text('Save')
-                   .removeClass('btn-primary')
-                   .addClass('btn-success');
-            }
-            else {
-                var customer = {
-                    CustomerID: row.data('id'),
-                    FirstName: row.find('[data-field="FirstName"]').text().trim(),
-                    LastName: row.find('[data-field="LastName"]').text().trim(),
-                    Email: row.find('[data-field="Email"]').text().trim(),
-                    Phone: row.find('[data-field="Phone"]').text().trim(),
-                    CountryID: countrySelect.val()
-                };
+                    btn.text('Save')
+                       .removeClass('btn-primary')
+                       .addClass('btn-success');
+                }
+                else
+                {
 
-                $.ajax({
-                    url: '/Admin/Update',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(customer),
-                    success: function () {
+                 var email = row.find('[data-field="Email"]').text().trim();
+                 var phone = row.find('[data-field="Phone"]').text().trim();
 
-                        // Disable text fields
-                        row.find('[data-field]')
-                            .removeAttr('contenteditable')
-                            .removeClass('editable-active');
 
-                        // ✅ Disable dropdown again
-                        countrySelect.prop('disabled', true);
 
-                        btn.text('Update')
-                           .removeClass('btn-success')
-                           .addClass('btn-primary');
-                    },
-                    error: function () {
-                        alert('Update failed');
-                    }
-                });
-            }
-        });
+
+                 var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+
+
+                 if (!emailRegex.test(email)) {
+                     alert("Please enter a valid email address");
+                     row.find('[data-field="Email"]').focus();
+                     return;
+                 }
+
+           
+                 if (!/^\d{10}$/.test(phone)) {
+                     alert("Phone number must be exactly 10 digits");
+                     row.find('[data-field="Phone"]').focus();
+                     return;
+                 }
+
+
+                    var customer = {
+                        CustomerID: row.data('id'),
+                        FirstName: row.find('[data-field="FirstName"]').text().trim(),
+                        LastName: row.find('[data-field="LastName"]').text().trim(),
+                        Email: row.find('[data-field="Email"]').text().trim(),
+                        Phone: row.find('[data-field="Phone"]').text().trim(),
+                        CountryID: countrySelect.val()
+                    };
+
+                    $.ajax({
+                        url: '/Admin/Update',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(customer),
+                        success: function () {
+
+                        
+                            row.find('[data-field]')
+                                .removeAttr('contenteditable')
+                                .removeClass('editable-active');
+
+                         
+                            countrySelect.prop('disabled', true);
+
+                            btn.text('Update')
+                               .removeClass('btn-success')
+                               .addClass('btn-primary');
+                        },
+                        error: function () {
+                            alert('Update failed');
+                        }
+                    });
+                }
+            });
 
 
 
@@ -129,6 +171,11 @@
 
     </script>
     <script>
+                $(document).on('click', '#btnCreateCustomer', function () {
+            window.location.href = '@Url.Action("Create", "Customers")';
+        });
+
+
             $(document).ready(function () {
             console.log("hello");
 

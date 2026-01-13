@@ -23,20 +23,7 @@ namespace CustomerManagementSystem.Controllers
         }
 
 
-        //public async Task<IActionResult> CustomerTablePartial(IFormCollection foFormCollection, int pageNumber = 1, int pageSize = 5)
-        //{
-
-        //    string? searchTerm = foFormCollection["searchValue"];
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        var data = await _repo.GetCustomersAsync(pageNumber, pageSize, searchTerm ?? "");
-        //        ViewBag.Countries = await _repo.GetCountriesAsync();
-        //        return PartialView("_customerList", data);
-        //    }
-        //    return View();
-
-        //}
+       
 
         public async Task<IActionResult> CustomerTablePartial(
         IFormCollection foFormCollection,

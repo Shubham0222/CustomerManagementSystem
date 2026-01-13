@@ -15,12 +15,6 @@ namespace CustomerManagementSystem.Services
             _context = context;
         }
 
-
-
-
-
-
-
         public async Task<CustomerReportDto> GetCustomersAsync(
             int page,
             int pageSize,
@@ -47,6 +41,7 @@ namespace CustomerManagementSystem.Services
                        OR c.FirstName LIKE '%' + @Search + '%'
                        OR c.LastName LIKE '%' + @Search + '%'
                        OR c.Email LIKE '%' + @Search + '%'
+                       OR co.CountryName LIKE '%' + @Search + '%'
                        OR c.Phone LIKE '%' + @Search + '%')
                 AND c.IsActive = 1
                 ORDER BY

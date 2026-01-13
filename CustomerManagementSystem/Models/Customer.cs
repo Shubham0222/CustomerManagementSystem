@@ -20,7 +20,7 @@ namespace CustomerManagementSystem.Models
         public string Email { get; set; } = string.Empty;
 
         [Phone]
-        [StringLength(20)]
+        [StringLength(10)]
         public string? Phone { get; set; }
 
         public int? CountryID { get; set; }
