@@ -1,0 +1,97 @@
+﻿@model CustomerReportDto
+
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>First</th>
+            <th>Last</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Country</th>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <th>Actions</th>
+            }
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var c in Model.Customers)
+        {
+            <tr data-id="@c.CustomerID">
+                <td data-field="FirstName">@c.FirstName</td>
+                <td data-field="LastName">@c.LastName</td>
+                <td data-field="Email">@c.Email</td>
+                <td data-field="Phone">@c.Phone</td>
+                <td>
+                    <select disabled class="form-control form-control-sm country-select">
+                        @foreach (var prm in ViewBag.Countries)
+                        {
+                            <option value="@prm.CountryID"
+                                    selected="@(prm.CountryID == c.CountryID)">
+                                @prm.CountryName
+                            </option>
+                        }
+                    </select>
+                </td>
+
+
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <td>
+                        <button class="btn btn-sm btn-primary btn-edit">Update</button>
+                        <button class="btn btn-sm btn-danger btn-delete">Delete</button>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+@if (Model.TotalPages > 1)
+{
+    <ul class="pagination pagination-rounded justify-content-end mb-0">
+
+
+        <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+            <a class="page-link" href="#" data-page="@(Model.PageNumber - 1)"> &lt; </a>
+        </li>
+
+        @if (Model.PageNumber > 3)
+        {
+            <li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+        }
+
+        @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
+        {
+            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                <a class="page-link" href="#" data-page="@i">@i</a>
+            </li>
+        }
+
+        @if (Model.PageNumber < Model.TotalPages - 2)
+        {
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+            <li class="page-item"><a class="page-link" href="#" data-page="@Model.TotalPages">@Model.TotalPages</a></li>
+        }
+
+
+        <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+            <a class="page-link" href="#" data-page="@(Model.PageNumber + 1)">&gt;</a>
+        </li>
+
+    </ul>
+}
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('[title]').tooltip();
+        });
+    </script>
+}
+

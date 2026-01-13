@@ -2,51 +2,72 @@
 using CustomerManagementSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
-[Authorize]
-public class CustomersController : Controller
+namespace CustomerManagementSystem.Controllers
 {
-    private readonly ICustomerRepository _repo;
-
-    public CustomersController(ICustomerRepository repo)
+    [Authorize]
+    public class CustomersController : Controller
     {
-        _repo = repo;
-    }
+        private readonly ICustomerRepository _repo;
 
-    public async Task<IActionResult> Index(int page = 1, string search = "")
-    {
-        int pageSize = 10;
-
-        var model = await _repo.GetCustomersAsync(page, pageSize, search);
-
-        model.Search = search;
-
-        return View(model);
-    }
-
-
-    [HttpGet]
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create(Customer customer)
-    {
-        if (!ModelState.IsValid)
-            return View(customer);
-
-        var (isSuccess, reason) = await _repo.AddCustomerAsync(customer);
-
-        if (!isSuccess)
+        public CustomersController(ICustomerRepository repo)
         {
-            TempData["SuccessMessage"] = reason;
-            return View(customer);
+            _repo = repo;
         }
 
-        TempData["SuccessMessage"] = reason;
-        return RedirectToAction(nameof(Index));
+        public async Task<IActionResult> Index()
+        {
+            ViewBag.Countries = await _repo.GetCountriesAsync();
+            return View();
+        }
 
+
+        public async Task<IActionResult> CustomerTablePartial(IFormCollection foFormCollection, int pageNumber = 1, int pageSize = 5)
+        {
+
+            string? searchTerm = foFormCollection["searchValue"];
+
+            if (ModelState.IsValid)
+            {
+                var data = await _repo.GetCustomersAsync(pageNumber, pageSize, searchTerm ?? "");
+                ViewBag.Countries = await _repo.GetCountriesAsync();
+                return PartialView("_customerList", data);
+            }
+            return View();
+
+        }
+
+
+
+       
+
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            ViewBag.Countries = await _repo.GetCountriesAsync();
+            return View();
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Create(Customer customer)
+        {
+            if (!ModelState.IsValid)
+                return View(customer);
+
+            var (isSuccess, reason) = await _repo.AddCustomerAsync(customer);
+
+            if (!isSuccess)
+            {
+                ViewBag.Countries = await _repo.GetCountriesAsync();
+                TempData["SuccessMessage"] = reason;
+                return View(customer);
+            }
+
+            TempData["SuccessMessage"] = reason;
+            return RedirectToAction(nameof(Index));
+
+        }
     }
 }

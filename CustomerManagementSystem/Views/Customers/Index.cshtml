@@ -1,188 +1,148 @@
 ﻿@model CustomerReportDto
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
+@{
+    ViewBag.title = "Customer List";
 }
-<style>
-    td.editable-active {
-        background-color: #e8f0fe;
-        border: 1px solid #1a73e8;
-        box-shadow: inset 0 0 0 1px #1a73e8;
-        cursor: text;
+
+@section page_specific_style{
+
+
+    <style>
+        .country-select:disabled {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+
+        background: transparent;
+        border: none;
+        box-shadow: none;
+
+        padding-left: 0;
+        color: #000;
+        font-weight: 500;
+
+        pointer-events: none;
     }
-</style>
+    </style>
+}
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0">Customer List</h4>
+<div class="container-fluid">
+    <div class="listTopFlex">
+        <h5>
+            Customer List
+        </h5>
+        <div class="listAct">
+            <div class="seah">
+                <input class="form-control form-control-sm" type="search" id="searchit" placeholder="Search...">
+                <label for="searchit"><i class="bx bx-search"></i></label>
+            </div>
 
-    <!-- User + Admin can create -->
-    <a asp-controller="Customers"
-       asp-action="Create"
-       class="btn btn-success">
-        + Create Customer
-    </a>
-</div>
-<form method="get" asp-action="Index" class="mb-3">
-    <div class="input-group">
-        <input type="text"
-               name="search"
-               value="@Model.Search"
-               class="form-control"
-               placeholder="Search by name, email or phone" />
-
-        <button class="btn btn-primary" type="submit">
-            Search
-        </button>
+        </div>
     </div>
-</form>
+    <div>
+        <div id="divindex">
+        </div>
+    </div>
 
-<table class="table table-bordered table-hover">
-    <thead class="table-dark">
-        <tr>
-            <th>First</th>
-            <th>Last</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Country</th>
 
-            @if (User.IsInRole("Admin"))
-            {
-                <th>Actions</th>
+
+</div>
+
+
+@section Scripts {
+    <script>
+
+        const IssuedPustikaUrl = '@Url.Action("CustomerTablePartial", "Customers")';
+
+    </script>
+    <script src="~/js/customerFilter.js"></script>
+    <script>
+
+                   $(document).on('click', '.btn-edit', function () {
+
+            var btn = $(this);
+            var row = btn.closest('tr');
+            var isEditMode = btn.text().trim() === 'Update';
+
+            var countrySelect = row.find('.country-select');
+
+            if (isEditMode) {
+                // Enable text fields
+                row.find('[data-field]')
+                    .attr('contenteditable', true)
+                    .addClass('editable-active');
+
+                // ✅ Enable country dropdown
+                countrySelect.prop('disabled', false);
+
+                btn.text('Save')
+                   .removeClass('btn-primary')
+                   .addClass('btn-success');
             }
-        </tr>
-    </thead>
+            else {
+                var customer = {
+                    CustomerID: row.data('id'),
+                    FirstName: row.find('[data-field="FirstName"]').text().trim(),
+                    LastName: row.find('[data-field="LastName"]').text().trim(),
+                    Email: row.find('[data-field="Email"]').text().trim(),
+                    Phone: row.find('[data-field="Phone"]').text().trim(),
+                    CountryID: countrySelect.val()
+                };
 
-    <tbody>
-        @foreach (var c in Model.Customers)
-        {
-            <tr data-id="@c.CustomerID">
-                <td data-field="FirstName">@c.FirstName</td>
-                <td data-field="LastName">@c.LastName</td>
-                <td data-field="Email">@c.Email</td>
-                <td data-field="Phone">@c.Phone</td>
-                <td>@c.CountryName</td>
+                $.ajax({
+                    url: '/Admin/Update',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(customer),
+                    success: function () {
 
-                @if (User.IsInRole("Admin"))
-                {
-                    <td>
-                        <button class="btn btn-sm btn-primary btn-edit">Update</button>
-                        <button class="btn btn-sm btn-danger btn-delete">Delete</button>
-                    </td>
-                }
-            </tr>
-        }
-    </tbody>
-</table>
-<nav>
-    <ul class="pagination justify-content-center">
+                        // Disable text fields
+                        row.find('[data-field]')
+                            .removeAttr('contenteditable')
+                            .removeClass('editable-active');
 
-        <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
-            <a class="page-link"
-               asp-action="Index"
-               asp-route-page="@(Model.CurrentPage - 1)">
-                Previous
-            </a>
-        </li>
+                        // ✅ Disable dropdown again
+                        countrySelect.prop('disabled', true);
 
-        @for (int i = 1; i <= Model.TotalPages; i++)
-        {
-            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                <a class="page-link"
-                   asp-action="Index"
-                   asp-route-page="@i">
-                    @i
-                </a>
-            </li>
-        }
-
-        <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
-            <a class="page-link"
-               asp-action="Index"
-               asp-route-page="@(Model.CurrentPage + 1)">
-                Next
-            </a>
-        </li>
-
-    </ul>
-</nav>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script>
-
-     $('.btn-edit').click(function () {
-
-        var btn = $(this);
-        var row = btn.closest('tr');
-        var isEditMode = btn.text() === 'Update';
-
-        if (isEditMode) {
-
-            row.find('[data-field]')
-                .attr('contenteditable', 'true')
-                .addClass('editable-active');
-
-            btn.text('Save')
-               .removeClass('btn-primary')
-               .addClass('btn-success');
-        }
-        else {
-
-            var customer = {
-                CustomerID: row.data('id'),
-                FirstName: row.find('[data-field="FirstName"]').text().trim(),
-                LastName: row.find('[data-field="LastName"]').text().trim(),
-                Phone: row.find('[data-field="Phone"]').text().trim(),
-                Email: row.find('[data-field="Email"]').text().trim()
-            };
-
-            $.ajax({
-                url: '/Admin/Update',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(customer),
-                success: function () {
-
-
-                    row.find('[data-field]')
-                        .removeAttr('contenteditable')
-                        .removeClass('editable-active');
-
-                    btn.text('Update')
-                       .removeClass('btn-success')
-                       .addClass('btn-primary');
-                },
-                error: function () {
-                    alert('Update failed');
-                }
-            });
-        }
-    });
-
-
-    $('.btn-delete').click(function () {
-
-        if (!confirm('Are you sure?')) return;
-
-        var row = $(this).closest('tr');
-        var id = row.data('id');
-
-        $.ajax({
-            url: '/Admin/Delete',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(id),
-            success: function () {
-                row.fadeOut(300, function () {
-                    $(this).remove();
+                        btn.text('Update')
+                           .removeClass('btn-success')
+                           .addClass('btn-primary');
+                    },
+                    error: function () {
+                        alert('Update failed');
+                    }
                 });
-            },
-            error: function () {
-                alert('Delete failed');
             }
         });
-    });
-</script>
+
+
+
+
+
+        $('.btn-delete').click(function () {
+
+            if (!confirm('Are you sure?')) return;
+
+            var row = $(this).closest('tr');
+            var id = row.data('id');
+
+            $.ajax({
+                url: '/Admin/Delete',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(id),
+                success: function () {
+                    row.fadeOut(300, function () {
+                        $(this).remove();
+                    });
+                },
+                error: function () {
+                    alert('Delete failed');
+                }
+            });
+        });
+    </script>
+}
+
+
+

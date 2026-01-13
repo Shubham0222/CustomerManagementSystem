@@ -8,6 +8,7 @@ namespace CustomerManagementSystem.Infrastructure
             int page, int pageSize, string search);
         Task<(bool IsSuccess, string Reason)> AddCustomerAsync(Customer customer);
         Task UpdateCustomerAsync(Customer customer);
+        Task<IEnumerable<Country>> GetCountriesAsync();
         Task DeleteCustomerAsync(int customerId);
     }
 

@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+﻿using CustomerManagementSystem.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Security.Claims;
 using System.Security.Cryptography;
 
 namespace CustomerManagementSystem.Utility
@@ -28,9 +32,9 @@ namespace CustomerManagementSystem.Utility
         }
 
         // VERIFY PASSWORD (extract salt automatically)
-        public static bool Verify(string password, string storedPassword)
+        public static bool Verify(string password, string? storedPassword)
         {
-            var parts = storedPassword.Split(':');
+            var parts = storedPassword?.Split(':') ?? [];
             if (parts.Length != 2)
                 return false;
 
@@ -47,5 +51,28 @@ namespace CustomerManagementSystem.Utility
 
             return CryptographicOperations.FixedTimeEquals(storedHash, computedHash);
         }
+
+        public static async Task SignInAsync(HttpContext httpContext,UserDto user,bool isPersistent = false)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim("UserId", user.UserID.ToString())
+                
+            };
+
+            var identity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme
+            );
+
+            await httpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity),
+                new AuthenticationProperties { IsPersistent = isPersistent }
+            );
+        }
+
     }
 }

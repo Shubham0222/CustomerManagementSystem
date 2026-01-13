@@ -15,8 +15,7 @@ namespace CustomerManagementSystem.Services
             _context = context;
         }
 
-        public async Task<CustomerReportDto> GetCustomersAsync(
-    int page, int pageSize, string search)
+        public async Task<CustomerReportDto> GetCustomersAsync(int page, int pageSize, string search)
         {
             var sql = @"
                     SELECT COUNT(*)
@@ -25,7 +24,7 @@ namespace CustomerManagementSystem.Services
                           AND IsActive = 1;
 
                     SELECT c.CustomerID, c.FirstName, c.LastName, c.Email,
-                           c.Phone, co.CountryName, c.IsActive
+                           c.Phone, co.CountryID,co.CountryName, c.IsActive
                     FROM Customers c
                     INNER JOIN Countries co ON c.CountryID = co.CountryID
                     WHERE (@Search IS NULL OR c.FirstName LIKE '%' + @Search + '%' OR c.LastName LIKE '%' + @Search + '%' OR c.Email LIKE '%' + @Search + '%' OR c.Phone LIKE '%' + @Search + '%' )
@@ -49,11 +48,19 @@ namespace CustomerManagementSystem.Services
             return new CustomerReportDto
             {
                 Customers = customers,
-                CurrentPage = page,
+                PageNumber = page,
                 PageSize = pageSize,
                 TotalRecords = totalRecords,
                 Search = search
             };
+        }
+        public async Task<IEnumerable<Country>> GetCountriesAsync()
+        {
+            using var connection = _context.CreateConnection();
+
+            var sql = "SELECT CountryID, CountryName FROM Countries ORDER BY CountryName";
+
+            return await connection.QueryAsync<Country>(sql);
         }
 
 

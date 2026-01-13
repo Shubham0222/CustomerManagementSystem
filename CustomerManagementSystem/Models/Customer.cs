@@ -23,7 +23,7 @@ namespace CustomerManagementSystem.Models
         [StringLength(20)]
         public string? Phone { get; set; }
 
-        public int? CountryID { get; set; } = 3;
+        public int? CountryID { get; set; }
 
         public bool IsActive { get; set; } = true;
 

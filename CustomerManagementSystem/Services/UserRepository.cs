@@ -1,4 +1,5 @@
 ﻿using CustomerManagementSystem.Models;
+using CustomerManagementSystem.Utility;
 using Dapper;
 using System.Data;
 
@@ -17,9 +18,10 @@ namespace CustomerManagementSystem.Services
         {
             return await _db.QueryFirstOrDefaultAsync<UserDto>(
                 "sp_ValidateUser",
-                new { Username = username },
+                new { Username = username, },
                 commandType: CommandType.StoredProcedure
             );
+
         }
     }
 }

@@ -8,6 +8,7 @@ namespace CustomerManagementSystem.Models
         public string Email { get; set; } = string.Empty;
         public string? Phone { get; set; }
         public string? CountryName { get; set; }
+        public int? CountryID { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
     }
@@ -16,15 +17,11 @@ namespace CustomerManagementSystem.Models
     {
         public List<CustomerReportVM> Customers { get; set; } = new List<CustomerReportVM>();
 
-        public int CurrentPage { get; set; }
-
+        public string Search { get; set; }= string.Empty;
+        public int PageNumber { get; set; }
         public int PageSize { get; set; }
-
         public int TotalRecords { get; set; }
-        public string Search { get; set; } = string.Empty;
-
-        public int TotalPages =>
-            (int)Math.Ceiling((double)TotalRecords / PageSize);
+        public int TotalPages => (int)Math.Ceiling((double)TotalRecords / PageSize);
     }
 
 }

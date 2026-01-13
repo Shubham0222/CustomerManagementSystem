@@ -1,8 +1,6 @@
 ﻿using CustomerManagementSystem.Utility;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace CustomerManagementSystem.Controllers
 {
@@ -20,7 +18,7 @@ namespace CustomerManagementSystem.Controllers
         {
             return View();
         }
-
+        
         [HttpPost]
         public async Task<IActionResult> Login(LoginVM model)
         {
@@ -34,23 +32,10 @@ namespace CustomerManagementSystem.Controllers
                 ModelState.AddModelError("", "Invalid username or password");
                 return View(model);
             }
-
-            var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Role, user.Role)
-        };
-
-            var identity = new ClaimsIdentity(
-                claims,
-                CookieAuthenticationDefaults.AuthenticationScheme
+            await CommonUtility.SignInAsync(
+                HttpContext,
+                user
             );
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(identity)
-            );
-
             return RedirectToAction("Index", "Customers");
         }
 
