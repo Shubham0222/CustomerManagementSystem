@@ -17,7 +17,7 @@ namespace CustomerManagementSystem.Models
     {
         public List<CustomerReportVM> Customers { get; set; } = new List<CustomerReportVM>();
 
-        public string Search { get; set; }= string.Empty;
+        public string? Search { get; set; }= string.Empty;
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
         public int TotalRecords { get; set; }

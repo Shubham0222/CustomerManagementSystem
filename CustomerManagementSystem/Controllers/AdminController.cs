@@ -10,14 +10,34 @@ namespace CustomerManagementSystem.Controllers
     {
         private readonly ICustomerRepository _repo;
 
-        public AdminController(ICustomerRepository repo) => _repo = repo;
-
+        public AdminController(ICustomerRepository repo)
+        {
+            _repo = repo;
+        }
 
         [HttpPost]
         public async Task<IActionResult> Update([FromBody] Customer customer)
         {
-            await _repo.UpdateCustomerAsync(customer);
-            return Json(new { success = true });
+            if (customer == null)
+                return Json(new { success = false, message = "Invalid customer data" });
+
+            if (!ModelState.IsValid)
+                return Json(ModelState);
+
+            try
+            {
+                await _repo.UpdateCustomerAsync(customer);
+                return Json(new { success = true, message = "Customer updated successfully" });
+            }
+            catch (Exception)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while updating the customer"
+                });
+
+            }
         }
 
 

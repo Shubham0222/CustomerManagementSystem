@@ -15,23 +15,57 @@ namespace CustomerManagementSystem.Services
             _context = context;
         }
 
-        public async Task<CustomerReportDto> GetCustomersAsync(int page, int pageSize, string search)
+
+
+
+
+
+
+        public async Task<CustomerReportDto> GetCustomersAsync(
+            int page,
+            int pageSize,
+            string? search,
+            string sortColumn,
+            string sortDirection)
+
         {
             var sql = @"
-                    SELECT COUNT(*)
-                    FROM Customers
-                    WHERE (@Search IS NULL OR FirstName LIKE '%' + @Search + '%')
-                          AND IsActive = 1;
+                SELECT COUNT(*)
+                FROM Customers
+                WHERE (@Search IS NULL 
+                       OR FirstName LIKE '%' + @Search + '%'
+                       OR LastName LIKE '%' + @Search + '%'
+                       OR Email LIKE '%' + @Search + '%'
+                       OR Phone LIKE '%' + @Search + '%')
+                AND IsActive = 1;
+                
+                SELECT c.CustomerID, c.FirstName, c.LastName, c.Email,
+                       c.Phone, co.CountryID, co.CountryName, c.IsActive
+                FROM Customers c
+                INNER JOIN Countries co ON c.CountryID = co.CountryID
+                WHERE (@Search IS NULL 
+                       OR c.FirstName LIKE '%' + @Search + '%'
+                       OR c.LastName LIKE '%' + @Search + '%'
+                       OR c.Email LIKE '%' + @Search + '%'
+                       OR c.Phone LIKE '%' + @Search + '%')
+                AND c.IsActive = 1
+                ORDER BY
+                    CASE WHEN @SortColumn = 'FirstName' AND @SortDirection = 'ASC' THEN c.FirstName END ASC,
+                    CASE WHEN @SortColumn = 'FirstName' AND @SortDirection = 'DESC' THEN c.FirstName END DESC,
+                
+                    CASE WHEN @SortColumn = 'LastName' AND @SortDirection = 'ASC' THEN c.LastName END ASC,
+                    CASE WHEN @SortColumn = 'LastName' AND @SortDirection = 'DESC' THEN c.LastName END DESC,
+                
+                    CASE WHEN @SortColumn = 'Email' AND @SortDirection = 'ASC' THEN c.Email END ASC,
+                    CASE WHEN @SortColumn = 'Email' AND @SortDirection = 'DESC' THEN c.Email END DESC,
+                
+                    CASE WHEN @SortColumn = 'Phone' AND @SortDirection = 'ASC' THEN c.Phone END ASC,
+                    CASE WHEN @SortColumn = 'Phone' AND @SortDirection = 'DESC' THEN c.Phone END DESC,
+                
+                    c.CreatedAt DESC
+                OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
+                ";
 
-                    SELECT c.CustomerID, c.FirstName, c.LastName, c.Email,
-                           c.Phone, co.CountryID,co.CountryName, c.IsActive
-                    FROM Customers c
-                    INNER JOIN Countries co ON c.CountryID = co.CountryID
-                    WHERE (@Search IS NULL OR c.FirstName LIKE '%' + @Search + '%' OR c.LastName LIKE '%' + @Search + '%' OR c.Email LIKE '%' + @Search + '%' OR c.Phone LIKE '%' + @Search + '%' )
-                          AND c.IsActive = 1
-                    ORDER BY c.CreatedAt
-                    OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
-                    ";
 
             using var connection = _context.CreateConnection();
 
@@ -39,8 +73,11 @@ namespace CustomerManagementSystem.Services
             {
                 Search = search,
                 Offset = (page - 1) * pageSize,
-                PageSize = pageSize
+                PageSize = pageSize,
+                SortColumn = sortColumn,
+                SortDirection = sortDirection
             });
+
 
             var totalRecords = await multi.ReadFirstAsync<int>();
             var customers = (await multi.ReadAsync<CustomerReportVM>()).ToList();
@@ -97,13 +134,13 @@ namespace CustomerManagementSystem.Services
 
 
 
-        public async Task UpdateCustomerAsync(Customer customer)
+        public async Task<bool> UpdateCustomerAsync(Customer customer)
         {
-            try
-            {
-                using var connection = _context.CreateConnection();
+            using var connection = _context.CreateConnection();
 
-                var parameters = new
+            var rows = await connection.ExecuteAsync(
+                "sp_UpdateCustomer",
+                new
                 {
                     customer.CustomerID,
                     customer.FirstName,
@@ -111,20 +148,12 @@ namespace CustomerManagementSystem.Services
                     customer.Email,
                     customer.Phone,
                     customer.CountryID,
-                };
+                },
+                commandType: CommandType.StoredProcedure);
 
-
-                await connection.ExecuteAsync(
-                   "sp_UpdateCustomer",
-                   parameters,
-                   commandType: CommandType.StoredProcedure);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            return rows > 0;
         }
+
 
         public async Task DeleteCustomerAsync(int customerId)
         {

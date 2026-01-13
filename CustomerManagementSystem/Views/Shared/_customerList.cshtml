@@ -3,11 +3,13 @@
 <table class="table table-bordered table-hover">
     <thead class="table-dark">
         <tr>
-            <th>First</th>
-            <th>Last</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Country</th>
+            <th>S.No</th>
+            <th class="sortable" data-sort="FirstName">First ⬍</th>
+            <th class="sortable" data-sort="LastName">Last ⬍</th>
+            <th class="sortable" data-sort="Email">Email ⬍</th>
+            <th class="sortable" data-sort="Phone">Phone ⬍</th>
+            <th class="sortable" data-sort="CountryName">Country ⬍</th>
+
 
             @if (User.IsInRole("Admin"))
             {
@@ -17,9 +19,16 @@
     </thead>
 
     <tbody>
+        @{
+            var sr = ((Model.PageNumber - 1) * Model.PageSize) + 1;
+        }
+
         @foreach (var c in Model.Customers)
         {
+
             <tr data-id="@c.CustomerID">
+                <td>@(sr++)</td>
+
                 <td data-field="FirstName">@c.FirstName</td>
                 <td data-field="LastName">@c.LastName</td>
                 <td data-field="Email">@c.Email</td>
@@ -93,5 +102,8 @@
             $('[title]').tooltip();
         });
     </script>
+
+
+
 }
 

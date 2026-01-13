@@ -1,6 +1,7 @@
 using CustomerManagementSystem.DbModels;
 using CustomerManagementSystem.Infrastructure;
 using CustomerManagementSystem.Services;
+using CustomerManagementSystem.Utility;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Data.SqlClient;
 using System.Data;
@@ -45,10 +46,10 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+
     app.UseHsts();
 }
-
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

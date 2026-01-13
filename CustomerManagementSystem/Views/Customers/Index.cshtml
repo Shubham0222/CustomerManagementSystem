@@ -20,7 +20,18 @@
             font-weight: 500;
             pointer-events: none;
         }
+
+        .sortable {
+            cursor: pointer;
+        }
+
+            .sortable:hover {
+                text-decoration: underline;
+            }
+
     </style>
+
+
 }
 
 <div class="container-fluid">
@@ -118,7 +129,7 @@
 
     </script>
     <script>
-                    $(document).ready(function () {
+            $(document).ready(function () {
             console.log("hello");
 
             $(document).on('click', '.btn-delete', function () {
@@ -147,6 +158,37 @@
         });
 
     </script>
+
+
+    <script>
+        let sortColumn = '@ViewBag.SortColumn';
+        let sortDirection = '@ViewBag.SortDirection';
+
+        $(document).on('click', '.sortable', function () {
+            let col = $(this).data('sort');
+
+            if (sortColumn === col) {
+                sortDirection = sortDirection === "ASC" ? "DESC" : "ASC";
+            } else {
+                sortColumn = col;
+                sortDirection = "ASC";
+            }
+
+            loadData(1);
+        });
+
+        function loadData(page) {
+            $.post('@Url.Action("CustomerTablePartial")', {
+                searchValue: $('#searchit').val(),
+                pageNumber: page,
+                sortColumn: sortColumn,
+                sortDirection: sortDirection
+            }, function (html) {
+                $('#divindex').html(html);
+            });
+        }
+    </script>
+
 }
 
 
