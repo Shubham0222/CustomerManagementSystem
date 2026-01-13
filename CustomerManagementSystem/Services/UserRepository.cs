@@ -1,4 +1,5 @@
-﻿using CustomerManagementSystem.Models;
+﻿using CustomerManagementSystem.DbModels;
+using CustomerManagementSystem.Models;
 using CustomerManagementSystem.Utility;
 using Dapper;
 using System.Data;
@@ -7,16 +8,17 @@ namespace CustomerManagementSystem.Services
 {
     public class UserRepository : IUserRepository
     {
-        private readonly IDbConnection _db;
+        private readonly DapperContext _context;
 
-        public UserRepository(IDbConnection db)
+        public UserRepository(DapperContext context)
         {
-            _db = db;
+            _context = context;
         }
 
         public async Task<UserDto?> ValidateUserAsync(string username)
         {
-            return await _db.QueryFirstOrDefaultAsync<UserDto>(
+            using var connection = _context.CreateConnection();
+            return await connection.QueryFirstOrDefaultAsync<UserDto>(
                 "sp_ValidateUser",
                 new { Username = username, },
                 commandType: CommandType.StoredProcedure

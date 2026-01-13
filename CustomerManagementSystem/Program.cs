@@ -12,11 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 
-builder.Services.AddScoped<IDbConnection>(sp =>
-    new SqlConnection(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    )
-);
+builder.Services.AddScoped<DapperContext>();
+
 
 builder.Services.AddSingleton<DapperContext>();
 
