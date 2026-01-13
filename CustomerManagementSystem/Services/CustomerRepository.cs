@@ -61,6 +61,9 @@ namespace CustomerManagementSystem.Services
                 
                     CASE WHEN @SortColumn = 'Phone' AND @SortDirection = 'ASC' THEN c.Phone END ASC,
                     CASE WHEN @SortColumn = 'Phone' AND @SortDirection = 'DESC' THEN c.Phone END DESC,
+
+                    CASE WHEN @SortColumn = 'CountryName' AND @SortDirection = 'ASC' THEN co.CountryName END ASC,
+                    CASE WHEN @SortColumn = 'CountryName' AND @SortDirection = 'DESC' THEN co.CountryName END DESC,
                 
                     c.CreatedAt DESC
                 OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
