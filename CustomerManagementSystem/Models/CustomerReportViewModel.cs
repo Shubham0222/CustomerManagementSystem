@@ -15,7 +15,7 @@ namespace CustomerManagementSystem.Models
 
     public class CustomerReportDto
     {
-        public List<CustomerReportVM> Customers { get; set; } = new List<CustomerReportVM>();
+        public List<CustomerReportVM> Customers { get; set; } = new();
 
         public string? Search { get; set; }= string.Empty;
         public int PageNumber { get; set; }
