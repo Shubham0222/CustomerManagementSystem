@@ -3,7 +3,6 @@ using CustomerManagementSystem.Infrastructure;
 using CustomerManagementSystem.Services;
 using CustomerManagementSystem.Utility;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Data.SqlClient;
 using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);

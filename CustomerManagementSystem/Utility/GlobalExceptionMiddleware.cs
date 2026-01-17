@@ -26,7 +26,7 @@ namespace CustomerManagementSystem.Utility
             {
                 _logger.LogError(ex, "Unhandled exception occurred");
 
-                // Check if request expects JSON (AJAX / API)
+                
                 if (IsAjaxRequest(context.Request))
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
@@ -42,8 +42,8 @@ namespace CustomerManagementSystem.Utility
                 }
                 else
                 {
-                    // MVC request → redirect to error page
-                    context.Response.Redirect("/Home/Error");
+                    
+                    context.Response.Redirect("/ExceptionHandle/Error");
                 }
             }
         }
